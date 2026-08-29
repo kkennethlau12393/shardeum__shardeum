@@ -6,20 +6,15 @@ const isHexString = /^0x[0-9a-fA-F]+$/
 const maxSafeInteger = BigInt(2147483647)
 
 /**
- * Validates if a chain ID is valid and matches an expected value
+ * Validates if a chain ID is valid and optionally matches an expected value
  * 
  * @param givenChainId The chain ID to validate (must be a hex string with 0x prefix)
- * @param expectedChainId The expected chain ID to compare against
- * @returns True if the chain ID is valid and matches the expected value, false otherwise
+ * @param expectedChainId Optional expected chain ID to compare against
+ * @returns True if the chain ID is valid (and matches expected value if provided), false otherwise
  */
-export function validateTxChainId(givenChainId: any, expectedChainId: number): boolean {
+export function validateTxChainId(givenChainId: any, expectedChainId?: number): boolean {
   // First check if the given chain ID is valid
   if (givenChainId === undefined || givenChainId === null) {
-    return false;
-  }
-
-  // make sure expectedChainId is an integer
-  if (!Number.isInteger(expectedChainId)) {
     return false;
   }
 
@@ -54,11 +49,17 @@ export function validateTxChainId(givenChainId: any, expectedChainId: number): b
     return false;
   }
 
-  // Check if expected chain ID is 
-  if (expectedChainId <= 0) {
-    return false;
+  // If expected chain ID is provided, validate it and compare
+  if (expectedChainId !== undefined) {
+    // Check if expected chain ID is valid
+    if (expectedChainId <= 0 || !Number.isInteger(expectedChainId)) {
+      return false;
+    }
+
+    // Compare the chain IDs - convert expected to BigInt for comparison
+    return chainIdBigInt === BigInt(expectedChainId);
   }
 
-  // Compare the chain IDs - convert expected to BigInt for comparison
-  return chainIdBigInt === BigInt(expectedChainId);
+  // If no expected chain ID, just return that the given chain ID is valid
+  return true;
 } 
